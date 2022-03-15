@@ -2,7 +2,15 @@
  * Theme overrides
  */
 html {
-background-color: black;
+
+}
+
+html {
+    filter: invert(100%);
+}
+
+html img {
+    filter: invert(100%);
 }
 
 .sapUshellIframeDialog .sapMDialogScrollCont {
