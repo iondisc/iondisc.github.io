@@ -1,1 +1,171 @@
-hi
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Animated Image Gallery</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 20px;
+				background-color: #f0f0f0;
+			}
+
+			.gallery {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+				gap: 20px;
+			}
+
+			.card {
+				background-color: white;
+				border-radius: 10px;
+				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+				overflow: hidden;
+				transition: transform 0.3s ease, opacity 0.3s ease, scale 0.3s ease;
+			}
+
+			/* Enter animation */
+			.card-enter {
+				opacity: 0;
+				transform: scale(0.9);
+			}
+
+			.card-enter-active {
+				opacity: 1;
+				transform: scale(1);
+			}
+
+			/* Exit animation */
+			.card-exit {
+				opacity: 1;
+				transform: scale(1);
+			}
+
+			.card-exit-active {
+				opacity: 0;
+				transform: scale(0.9);
+			}
+
+			.card img {
+				width: 100%;
+				height: 250px;
+				object-fit: cover;
+			}
+
+			.card-info {
+				padding: 10px;
+			}
+
+			.controls {
+				margin-bottom: 20px;
+				display: flex;
+				gap: 10px;
+			}
+
+			button {
+				padding: 10px 15px;
+				background-color: #4caf50;
+				color: white;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+				transition: background-color 0.3s ease;
+			}
+
+			button:hover {
+				background-color: #45a049;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<div class="controls">
+				<button onclick="addRandomImage()">Add Random Image</button>
+				<button onclick="removeRandomImage()">Remove Random Image</button>
+			</div>
+			<div id="gallery" class="gallery"></div>
+		</div>
+
+		<script>
+			// Image URLs to cycle through
+			const imageUrls = [
+			    'https://placehold.co/400x200/1CA9C9/white',
+			    'https://placehold.co/400x200/FF5E3A/white'
+			    'https://placehold.co/400x200/228B22/white',
+			    'https://placehold.co/400x200/FFD700/white',
+			    'https://placehold.co/400x200/gold/white',
+			    'https://placehold.co/400x200/teal/white',
+			    'https://placehold.co/400x200/8E4585/white',
+			    'https://placehold.co/400x200/708090/white'
+			];
+
+			let images = [];
+
+			function createImageCard(imageUrl) {
+			    const card = document.createElement('div');
+			    card.className = 'card card-enter';
+
+			    const img = document.createElement('img');
+			    img.src = imageUrl;
+			    img.alt = 'Random image';
+
+			    const info = document.createElement('div');
+			    info.className = 'card-info';
+			    info.textContent = `Image ${images.length + 1}`;
+
+			    card.appendChild(img);
+			    card.appendChild(info);
+
+			    // Trigger reflow to enable transition
+			    setTimeout(() => {
+			        card.classList.remove('card-enter');
+			    }, 10);
+
+			    return card;
+			}
+
+			function addRandomImage() {
+			    if (images.length >= imageUrls.length) {
+			        alert('No more unique images available!');
+			        return;
+			    }
+
+			    // Find an unused image URL
+			    const availableUrls = imageUrls.filter(url => !images.includes(url));
+			    const randomUrl = availableUrls[Math.floor(Math.random() * availableUrls.length)];
+
+			    const gallery = document.getElementById('gallery');
+			    const newCard = createImageCard(randomUrl);
+
+			    gallery.appendChild(newCard);
+			    images.push(randomUrl);
+			}
+
+			function removeRandomImage() {
+			    const gallery = document.getElementById('gallery');
+			    if (gallery.children.length === 0) {
+			        alert('No images to remove!');
+			        return;
+			    }
+
+			    // Select a random card to remove
+			    const cardToRemove = gallery.children[Math.floor(Math.random() * gallery.children.length)];
+
+			    cardToRemove.classList.add('card-exit');
+
+			    // Remove after transition completes
+			    cardToRemove.addEventListener('transitionend', () => {
+			        gallery.removeChild(cardToRemove);
+
+			        // Remove the corresponding image URL from our tracked images
+			        const imgSrc = cardToRemove.querySelector('img').src;
+			        images = images.filter(url => url !== imgSrc);
+			    });
+			}
+		</script>
+	</body>
+</html>
+
