@@ -1,171 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Animated Image Gallery</title>
-		<style>
-			body {
-				font-family: Arial, sans-serif;
-				max-width: 800px;
-				margin: 0 auto;
-				padding: 20px;
-				background-color: #f0f0f0;
-			}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS View Transitions List Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
 
-			.gallery {
-				display: grid;
-				grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-				gap: 20px;
-			}
+        /* View Transition Root */
+        .view-transitions-list {
+            view-transition-name: list-container;
+        }
 
-			.card {
-				background-color: white;
-				border-radius: 10px;
-				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-				overflow: hidden;
-				transition: transform 0.3s ease, opacity 0.3s ease, scale 0.3s ease;
-			}
+        /* Individual list items */
+        .list-item {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
 
-			/* Enter animation */
-			.card-enter {
-				opacity: 0;
-				transform: scale(0.9);
-			}
+        .list-item img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 15px;
+            view-transition-name: item-image;
+            object-fit: cover;
+        }
 
-			.card-enter-active {
-				opacity: 1;
-				transform: scale(1);
-			}
+        .list-item span {
+            flex-grow: 1;
+            view-transition-name: item-text;
+        }
 
-			/* Exit animation */
-			.card-exit {
-				opacity: 1;
-				transform: scale(1);
-			}
+        .list-item button {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-			.card-exit-active {
-				opacity: 0;
-				transform: scale(0.9);
-			}
+        /* View Transition Animations */
+        @view-transition {
+            navigation: auto;
+        }
 
-			.card img {
-				width: 100%;
-				height: 250px;
-				object-fit: cover;
-			}
+        @keyframes fade-in {
+            from { opacity: 0; }
+        }
 
-			.card-info {
-				padding: 10px;
-			}
+        @keyframes fade-out {
+            to { opacity: 0; }
+        }
 
-			.controls {
-				margin-bottom: 20px;
-				display: flex;
-				gap: 10px;
-			}
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+            animation: none;
+            mix-blend-mode: normal;
+        }
 
-			button {
-				padding: 10px 15px;
-				background-color: #4caf50;
-				color: white;
-				border: none;
-				border-radius: 5px;
-				cursor: pointer;
-				transition: background-color 0.3s ease;
-			}
+        ::view-transition-old(root) {
+            z-index: 1;
+        }
 
-			button:hover {
-				background-color: #45a049;
-			}
-		</style>
-	</head>
-	<body>
-		<div id="app">
-			<div class="controls">
-				<button onclick="addRandomImage()">Add Random Image</button>
-				<button onclick="removeRandomImage()">Remove Random Image</button>
-			</div>
-			<div id="gallery" class="gallery"></div>
-		</div>
+        ::view-transition-new(root) {
+            z-index: 2;
+        }
 
-		<script>
-			// Image URLs to cycle through
-			const imageUrls = [
-			    'https://placehold.co/400x200/1CA9C9/white',
-			    'https://placehold.co/400x200/FF5E3A/white',
-			    'https://placehold.co/400x200/228B22/white',
-			    'https://placehold.co/400x200/FFD700/white',
-			    'https://placehold.co/400x200/gold/white',
-			    'https://placehold.co/400x200/teal/white',
-			    'https://placehold.co/400x200/8E4585/white',
-			    'https://placehold.co/400x200/708090/white'
-			];
+        .view-transition-fallback {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
 
-			let images = [];
+        .view-transition-fallback.visible {
+            opacity: 1;
+        }
 
-			function createImageCard(imageUrl) {
-			    const card = document.createElement('div');
-			    card.className = 'card card-enter';
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
 
-			    const img = document.createElement('img');
-			    img.src = imageUrl;
-			    img.alt = 'Random image';
+        .controls button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button id="addItem">Add Item</button>
+        <button id="removeItem">Remove Item</button>
+    </div>
 
-			    const info = document.createElement('div');
-			    info.className = 'card-info';
-			    info.textContent = `Image ${images.length + 1}`;
+    <div id="list" class="view-transitions-list">
+        <!-- Initial items will be added dynamically -->
+    </div>
 
-			    card.appendChild(img);
-			    card.appendChild(info);
+    <script>
+        // Fallback for browsers that don't support View Transitions
+        function supportsViewTransitions() {
+            return 'transition' in document.body.style && 'view-transition-name' in document.body.style;
+        }
 
-			    // Trigger reflow to enable transition
-			    setTimeout(() => {
-			        card.classList.remove('card-enter');
-			    }, 10);
+        const list = document.getElementById('list');
+        const addItemBtn = document.getElementById('addItem');
+        const removeItemBtn = document.getElementById('removeItem');
 
-			    return card;
-			}
+        // Sample data for list items
+        const names = [
+            'Alice Johnson', 'Bob Smith', 'Charlie Brown', 
+            'Diana Prince', 'Ethan Hunt', 'Fiona Waters'
+        ];
+        const items = [];
 
-			function addRandomImage() {
-			    if (images.length >= imageUrls.length) {
-			        alert('No more unique images available!');
-			        return;
-			    }
+        function getRandomName() {
+            const availableNames = names.filter(name => !items.some(item => item.name === name));
+            return availableNames[Math.floor(Math.random() * availableNames.length)];
+        }
 
-			    // Find an unused image URL
-			    const availableUrls = imageUrls.filter(url => !images.includes(url));
-			    const randomUrl = availableUrls[Math.floor(Math.random() * availableUrls.length)];
+        function createListItem(name) {
+            const item = document.createElement('div');
+            item.classList.add('list-item');
+            
+            // Create profile image (using placeholder)
+            const img = document.createElement('img');
+            img.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+            img.alt = `${name}'s avatar`;
 
-			    const gallery = document.getElementById('gallery');
-			    const newCard = createImageCard(randomUrl);
+            // Create name text
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = name;
 
-			    gallery.appendChild(newCard);
-			    images.push(randomUrl);
-			}
+            // Create remove button
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = 'Remove';
+            removeBtn.onclick = () => removeSpecificItem(item, name);
 
-			function removeRandomImage() {
-			    const gallery = document.getElementById('gallery');
-			    if (gallery.children.length === 0) {
-			        alert('No images to remove!');
-			        return;
-			    }
+            item.appendChild(img);
+            item.appendChild(nameSpan);
+            item.appendChild(removeBtn);
 
-			    // Select a random card to remove
-			    const cardToRemove = gallery.children[Math.floor(Math.random() * gallery.children.length)];
+            return item;
+        }
 
-			    cardToRemove.classList.add('card-exit');
+        function addItem() {
+            // Fallback for unsupported browsers
+            if (!supportsViewTransitions()) {
+                const name = getRandomName();
+                if (!name) {
+                    alert('No more names available!');
+                    return;
+                }
+                
+                const newItem = createListItem(name);
+                list.appendChild(newItem);
+                items.push({ name, element: newItem });
+                return;
+            }
 
-			    // Remove after transition completes
-			    cardToRemove.addEventListener('transitionend', () => {
-			        gallery.removeChild(cardToRemove);
+            // View Transitions API approach
+            const name = getRandomName();
+            if (!name) {
+                alert('No more names available!');
+                return;
+            }
 
-			        // Remove the corresponding image URL from our tracked images
-			        const imgSrc = cardToRemove.querySelector('img').src;
-			        images = images.filter(url => url !== imgSrc);
-			    });
-			}
-		</script>
-	</body>
+            // Wrap in view transition
+            document.startViewTransition(() => {
+                const newItem = createListItem(name);
+                list.appendChild(newItem);
+                items.push({ name, element: newItem });
+            });
+        }
+
+        function removeSpecificItem(itemElement, name) {
+            // Fallback for unsupported browsers
+            if (!supportsViewTransitions()) {
+                list.removeChild(itemElement);
+                const index = items.findIndex(item => item.name === name);
+                if (index !== -1) items.splice(index, 1);
+                return;
+            }
+
+            // View Transitions API approach
+            document.startViewTransition(() => {
+                list.removeChild(itemElement);
+                const index = items.findIndex(item => item.name === name);
+                if (index !== -1) items.splice(index, 1);
+            });
+        }
+
+        function removeItem() {
+            if (items.length === 0) {
+                alert('No items to remove!');
+                return;
+            }
+
+            // Fallback for unsupported browsers
+            if (!supportsViewTransitions()) {
+                const randomIndex = Math.floor(Math.random() * items.length);
+                const itemToRemove = items[randomIndex].element;
+                list.removeChild(itemToRemove);
+                items.splice(randomIndex, 1);
+                return;
+            }
+
+            // View Transitions API approach
+            document.startViewTransition(() => {
+                const randomIndex = Math.floor(Math.random() * items.length);
+                const itemToRemove = items[randomIndex].element;
+                list.removeChild(itemToRemove);
+                items.splice(randomIndex, 1);
+            });
+        }
+
+        // Initialize with a few items
+        addItem();
+        addItem();
+
+        // Event listeners
+        addItemBtn.addEventListener('click', addItem);
+        removeItemBtn.addEventListener('click', removeItem);
+    </script>
+</body>
 </html>
-
